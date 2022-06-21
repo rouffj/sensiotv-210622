@@ -1,19 +1,33 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
-        {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
-        {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
-        {% endblock %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="author" content="SensioTV">
+    <meta name="description" content="Avengers movie details.">
+    <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=10"><![endif]-->
 
-        {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
-        {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
-</html>
+    <meta property="og:image" content="https://university.sensiolabs.com/images/sensiolabs-university-fullwhite.png">
+    <meta property="og:title" content="SensioTV from SensioLabs University - Avengers Movie Details">
+    <meta property="og:description" content="Avengers movie details.">
+
+    <title>SensioTV - Avengers: Endgame Details</title>
+
+    <!-- Vendor CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.0/css/bootstrap.min.css" integrity="sha384-SI27wrMjH3ZZ89r4o+fGIJtnzkAnFs3E4qz9DIYioCQ5l9Rd/7UAa8DHcaL8jkWt" crossorigin="anonymous">
+    <!-- Personal CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/css/sensiotv-theme.min.css">
+
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/images/sensiotv-favicon.ico">
+    <link rel="icon" type="image/png" href="/assets/images/sensiotv-icon.png">
+    <link rel="apple-touch-icon" type="image/png" href="/assets/images/sensiotv-icon.png">
+</head>
+<body>
+
+{{ include('_menu.html.twig', {current_route: app.request.attributes.get('_route')} ) }}
+
+<main id="main">
+  {% block body %}
+  Hello
+  {% endblock %}
+</main>
