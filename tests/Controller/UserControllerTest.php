@@ -20,8 +20,6 @@ class UserControllerTest extends WebTestCase
         $this->assertEquals(2, $client->getCrawler()->filter('.form-error-icon')->count());
         // When success
 
-
-        $this->assertSelectorTextContains('h1', 'Create your account');
         $client->submitForm('Register', [
             'user[email]' => 'joseph@test.fr',
             'user[password][first]' => 'testtest',
