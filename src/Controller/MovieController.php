@@ -2,29 +2,37 @@
 
 namespace App\Controller;
 
+use App\Service\OmdbApi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MovieController extends AbstractController
 {
     #[Route('/', name: 'home')]
-    public function home(): Response
+    public function home(string $omdbToken): Response
     {
+        dump($omdbToken);
         return $this->render('homepage.html');
     }
 
     #[Route('/movie/{id<\d+>?1}', name: 'app_movie_show')]
+    //public function show(Movie $movie): Response
     public function show(int $id): Response
     {
         return $this->render('movie/show.html', ['movie' => $this->getMovies()[$id]]);
     }
 
     #[Route('/movie/search', name: 'app_movie_search')]
-    public function search(): Response
+    public function search(Request $request, OmdbApi $omdbApi): Response
     {
+        $keyword = $request->query->get('keyword', 'Harry Potter');
+        $movies = $omdbApi->requestAllBySearch($keyword);
+
         return $this->render('movie/search.html', [
-            'controller_name' => 'MovieController',
+            'keyword' => $keyword,
+            'movies' => $movies,
         ]);
     }
 
