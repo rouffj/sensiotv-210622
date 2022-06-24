@@ -2,11 +2,16 @@
 
 namespace App\Controller;
 
+use App\Repository\InMemoryMovieRepository;
+use App\Security\Voter\MovieVoter;
 use App\Service\OmdbApi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use App\Event\MovieSearchedEvent;
 
 class MovieController extends AbstractController
 {
@@ -19,16 +24,26 @@ class MovieController extends AbstractController
 
     #[Route('/movie/{id<\d+>?1}', name: 'app_movie_show')]
     //public function show(Movie $movie): Response
-    public function show(int $id): Response
+    public function show(int $id, InMemoryMovieRepository $inMemoryMovieRepository): Response
     {
-        return $this->render('movie/show.html', ['movie' => $this->getMovies()[$id]]);
+        if (!$this->isGranted('ROLE_USER')) {
+            throw new AccessDeniedException('You should have the role ADMIN to access this page');
+        }
+        $movie = $inMemoryMovieRepository->getMovies()[$id];
+        
+        $this->denyAccessUnlessGranted(MovieVoter::VIEW, $movie);
+
+        return $this->render('movie/show.html', ['movie' => $movie]);
     }
 
     #[Route('/movie/search', name: 'app_movie_search')]
-    public function search(Request $request, OmdbApi $omdbApi): Response
+    public function search(Request $request, OmdbApi $omdbApi, EventDispatcherInterface $eventDispatcher): Response
     {
+        
         $keyword = $request->query->get('keyword', 'Harry Potter');
         $movies = $omdbApi->requestAllBySearch($keyword);
+
+        $eventDispatcher->dispatch(new MovieSearchedEvent($this->getUser(), $movies), 'movie_searched');
 
         return $this->render('movie/search.html', [
             'keyword' => $keyword,
@@ -40,23 +55,5 @@ class MovieController extends AbstractController
     public function latest(): Response
     {
         return $this->render('movie/latest.html');
-    }
-
-    private function getMovies(): array
-    {
-        return [
-            1 => [
-                'title' => 'Avengers: Endgame',
-                'image' => 'https://m.media-amazon.com/images/M/MV5BMTc5MDE2ODcwNV5BMl5BanBnXkFtZTgwMzI2NzQ2NzM@._V1_SX300.jpg',
-                'release_date' => new \DateTime('2015-01-01'),
-                'genres' => ['action', 'aventure'], 
-            ],
-            2 => [
-                'title' => 'Harry Potter and the Sorcerer\'s Stone',
-                'image' => 'https://m.media-amazon.com/images/M/MV5BNjQ3NWNlNmQtMTE5ZS00MDdmLTlkZjUtZTBlM2UxMGFiMTU3XkEyXkFqcGdeQXVyNjUwNzk3NDc@._V1_SX300.jpg',
-                'release_date' => new \DateTime('2010-01-01'),
-                'genres' => ['action', 'aventure'], 
-            ]
-        ];
     }
 }
